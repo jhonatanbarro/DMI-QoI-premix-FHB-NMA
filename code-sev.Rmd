@@ -1,0 +1,448 @@
+
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+# Import Data
+
+```{r}
+library(knitr)
+library(tidyverse)
+library(janitor)
+fhb_sev <- read_csv("data/dat-sev.csv")
+
+fhb_sev %>%
+  tabyl(AI2, n_spray)
+
+# Renaming the treatments 
+library(plyr)
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("check-0" = "AACHECK"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Azoxistrobina + Tebuconazole-2" = "AZOX + TEBU 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Piraclostrobina + Metconazole-2" = "PYRA + METC 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Tebuconazole-2" = "TEBU 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Trifloxistrobina + Protioconazole-2" = "TFLX + PROT 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Trifloxistrobina + Tebuconazole-2" = "TFLX + TEBU 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Piraclostrobina + Metconazole-1" = "PYRA + METC 1X"))
+detach("package:plyr", unload = TRUE)
+
+
+# create the log of the FHB index variable
+fhb_sev <- fhb_sev %>%
+  mutate(log_sev = log(sev))
+
+# create the sampling variance for the log of FHB index
+fhb_sev$vi <- with(fhb_sev, V_sev / (n * sev^2))
+
+
+```
+
+
+## Covariance structure
+
+Now we will fit models with HCS and UN matrix-covariance structure. We will then compare them with `anova` function to choose among the best model.
+
+```{r}
+summary(fhb_sev$vi)
+library(metafor)
+fhb_sev = fhb_sev %>% #only study 100 has vi>25. So, we excluded that study in order to obtain stable results
+  filter(vi < 25)
+
+
+mv_sev_HCS <- rma.mv(log_sev, vi,
+  mods = ~AI2,
+  random = list(~AI2 | factor(trial)),
+  struct = "HCS",
+  method = "ML",
+  data = fhb_sev
+)
+
+mv_sev <- rma.mv(log_sev, vi,
+  mods = ~AI2,
+  random = list(~AI2 | factor(trial)),
+  struct = "UN",
+  method = "ML",
+  control = list(optimizer = "nlm"),
+  data = fhb_sev
+)
+
+mv_sev
+```
+
+
+We can see below that the UN structure is a better model.
+
+```{r}
+
+anova(mv_sev_HCS, mv_sev)
+AIC(mv_sev_HCS)
+```
+
+
+## Percent control
+
+Let's obtain the percent control from the estimated ratios.
+
+```{r}
+
+efficacy_sev <- data.frame(cbind(
+  (1 - exp(mv_sev$b)) * 100,
+  (1 - exp(mv_sev$ci.lb)) * 100,
+  (1 - exp(mv_sev$ci.ub)) * 100))
+
+efficacy_sev
+
+# Let's save the results
+efficacy_res = efficacy_sev %>% 
+  set_names("efficacy", "eff_sup", "eff_inf") %>% 
+  mutate(fungicide = c("check", "AZOX + TEBU 2X", "PYRA + METC 1X", "PYRA + METC 2X", "TEBU 2X", "TFLX + PROT 2X", "TFLX + TEBU 2X")) %>% 
+  filter(fungicide != "check")
+efficacy_res
+
+library(readr)
+write_csv(efficacy_res, "data/efficacy.csv")
+```
+
+
+## Contrasts
+
+We can set linear contrasts between treatments of interest and get the P-value using the `anova` function.
+
+
+```{r}
+anova(mv_sev, L = rbind(
+  c(0, 1, -1, 0, 0, 0, 0),
+  c(0, 1, 0, -1, 0, 0, 0),
+  c(0, 1, 0, 0, -1, 0, 0),
+  c(0, 1, 0, 0, 0, -1, 0),
+  c(0, 1, 0, 0, 0, 0, -1),
+  c(0, 0, 1, -1, 0, 0, 0),
+  c(0, 0, 1, 0, -1, 0, 0),
+  c(0, 0, 1, 0, 0, -1, 0),
+  c(0, 0, 1, 0, 0, 0, -1),
+  c(0, 0, 0, 1, -1, 0, 0),
+  c(0, 0, 0, 1, 0, -1, 0),
+  c(0, 0, 0, 1, 0, 0, -1),
+  c(0, 0, 0, 0, 1, -1, 0),
+  c(0, 0, 0, 0, 1, 0, -1),
+  c(0, 0, 0, 0, 0, 1, -1)
+))
+```
+
+## Moderators
+
+The model was expanded to include categorical or continuous moderator variables that could explain, at least portion of, the heterogeneity of the effects across trials.
+
+### Year as continuous
+
+We tested Year as continuous to check whether there was any trend of decline in fungicide efficacy over time.
+
+```{r}
+
+# Number of entries by fungicide and year
+table(fhb_sev$AI2, fhb_sev$year)
+
+mv_sev_year <- rma.mv(log_sev, vi,
+  mods = ~AI2*year,
+  random = list(~AI2 | factor(trial)),
+  struct = "HCS",
+  method = "ML",
+  data = fhb_sev %>% mutate(year = year-2000))
+
+
+mv_sev_year
+
+anova(mv_sev_year, btt=9:14)
+
+
+```
+
+
+### Disease Pressure
+
+We created this baseline for FHB disease index based on the median of the mean values in the nontreated check.
+
+```{r}
+median(fhb_sev$sev_check)
+
+library(tidyverse)
+fhb_sev <- fhb_sev %>%
+  mutate(sev_check_class = case_when(
+      sev_check < 7 ~ "low",
+      sev_check >= 7 ~ "high"))
+
+mv_sev_check <- rma.mv(log_sev, vi,
+  mods = ~AI2* factor(sev_check_class),
+  random = list(~AI2 | factor(trial)),
+  struct = "UN",
+  method = "ML",
+  control = list(optimizer = "nlm"),
+  data = fhb_sev
+)
+
+mv_sev_check
+
+
+anova(mv_sev_check, btt=9:14)
+
+```
+
+### Baseline 10%
+
+We also tested if the baseline of 10%, which is used in the United States to define an FHB epidemic case (De Wolf et al. 2003), could explain, at least portion of, the heterogeneity of the effects across trials.
+
+```{r}
+library(tidyverse)
+library(metafor)
+
+fhb_sev <- fhb_sev %>%
+  mutate(sev_check_class = case_when(
+      sev_check < 10 ~ "low",
+      sev_check >= 10 ~ "high"))
+
+mv_sev_check <- rma.mv(log_sev, vi,
+  mods = ~AI2*factor(sev_check_class),
+  random = list(~AI2 | factor(trial)),
+  struct = "UN",
+  method = "ML",
+  control = list(optimizer = "nlm"),
+  data = fhb_sev
+)
+
+mv_sev_check
+
+
+anova(mv_sev_check, btt=9:14)
+```
+
+
+### Sev_check as continuous
+
+```{r}
+
+mv_sev_check_cont <- rma.mv(log_sev, vi,
+  mods = ~AI2*as.numeric(sev_check),
+  random = list(~AI2 | factor(trial)),
+  struct = "UN",
+  method = "ML",
+  control = list(optimizer = "nlm"),
+  data = fhb_sev
+)
+
+mv_sev_check_cont
+
+
+anova(mv_sev_check_cont, btt=9:14)
+
+
+```
+
+### yield_class
+
+We created this baseline for wheat grain yield based on the median of the mean values in the nontreated check.
+
+```{r}
+
+summary(fhb_sev$yld_check)  
+
+fhb_sev <- fhb_sev %>%
+  mutate(yld_check_class = case_when(
+      yld_check < 3000 ~ "low",
+      yld_check >= 3000 ~ "high"))
+table(fhb_sev$AI2, fhb_sev$yld_check_class)
+
+
+mv_yld_check <- rma.mv(log_sev, vi,
+  mods = ~AI2*factor(yld_check_class),
+  random = list(~AI2 | factor(trial)),
+  struct = "UN",
+  method = "ML",
+  control = list(optimizer = "nlm"),
+  data = fhb_sev
+)
+
+mv_yld_check
+
+
+anova(mv_yld_check, btt=9:14)
+
+
+```
+
+
+## Inconsistency
+
+
+In a network meta-analysis, it is important to check whether the results are consistent across the different designs. We included this variable and tested the interaction effect of treatments and design group.
+
+```{r, warning=FALSE}
+library(knitr)
+library(tidyverse)
+library(janitor)
+fhb_sev <- read_csv("data/dat-sev.csv")
+
+fhb_sev %>%
+  tabyl(AI2, n_spray)
+
+# Renaming the treatments 
+library(plyr)
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("check-0" = "AACHECK"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Azoxistrobina + Tebuconazole-2" = "AZOX + TEBU 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Piraclostrobina + Metconazole-2" = "PYRA + METC 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Tebuconazole-2" = "TEBU 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Trifloxistrobina + Protioconazole-2" = "TFLX + PROT 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Trifloxistrobina + Tebuconazole-2" = "TFLX + TEBU 2X"))
+fhb_sev$AI2 <- revalue(fhb_sev$AI2, c("Piraclostrobina + Metconazole-1" = "PYRA + METC 1X"))
+detach("package:plyr", unload = TRUE)
+
+
+# create the log of the FHB index variable
+fhb_sev <- fhb_sev %>%
+  mutate(log_sev = log(sev))
+
+# create the sampling variance for the log of FHB index
+fhb_sev$vi <- with(fhb_sev, V_sev / (n * sev^2))
+```
+
+### Design groups
+
+Eleven different designs (here design refers to the set of treatments in the trial) were found in the trials reporting FHB index.
+
+```{r}
+design1 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "TFLX + PROT 2X", "TFLX + TEBU 2X", "AZOX + TEBU 2X", "TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(1, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>% 
+  filter(n2 == 6) %>% 
+  filter(n3 == 6)
+design1
+
+design2 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "TFLX + PROT 2X", "TFLX + TEBU 2X", "AZOX + TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(2, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%   
+  filter(n2 == 5) %>% 
+  filter(n3 == 5)
+design2
+
+design3 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "TFLX + TEBU 2X", "AZOX + TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(3, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 3) %>% 
+  filter(n3 == 3)
+design3
+
+design4 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "PYRA + METC 1X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(4, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>% 
+  filter(n2 == 3) %>% 
+  filter(n3 == 3)
+design4
+
+design5 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "TFLX + PROT 2X", "TFLX + TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(5, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>% 
+  filter(n2 == 4) %>% 
+  filter(n3 == 4)
+design5
+
+design6 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "TFLX + PROT 2X", "TFLX + TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(6, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 3) %>% 
+  filter(n3 == 3)
+design6
+
+design7 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(7, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 2) %>% 
+  filter(n3 == 2)
+design7
+
+design8 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "TFLX + PROT 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(8, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 3) %>% 
+  filter(n3 == 3)
+design8
+
+design9 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(9, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 2) %>% 
+  filter(n3 == 2)
+design9
+
+design10 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "PYRA + METC 1X", "TFLX + PROT 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(10, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 4) %>% 
+  filter(n3 == 4)
+design10
+
+design11 = fhb_sev %>% 
+  group_by(trial) %>% 
+  filter(AI2  %in% c("AACHECK", "PYRA + METC 2X", "TEBU 2X")) %>% 
+  mutate(n3 = n()) %>% 
+  mutate(design = rep(11, length(AI2))) %>% 
+  select(1:5,8:15,17:24) %>%  
+  filter(n2 == 3) %>% 
+  filter(n3 == 3)
+design11
+
+fhb_sev_design = rbind(design1, design2, design3, design4, design5, design6, design7, design8, design9, design10, design11) %>% 
+  group_by(trial)
+fhb_sev_design
+```
+
+### Test 
+
+We used a factorial-type ANOVA model to determine the significance of the *treatment x design* interaction, evaluated based on the Wald test statistic.
+
+```{r}
+library(metafor)
+summary(fhb_sev_design$vi)
+
+fhb_sev_design = fhb_sev_design %>% 
+  filter(vi < 25)
+
+mv_incon <- rma.mv(log_sev, vi,
+  mods = ~AI2 * design,
+  random = list(~factor(trial) | design / AI2),
+  struct = "UN",
+  method = "ML",
+  control = list(optimizer = "nlm"),
+  data = fhb_sev_design)
+mv_incon
+anova(mv_incon, btt = 9:14)
+
+```

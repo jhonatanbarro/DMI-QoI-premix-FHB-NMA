@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>plots.utf8.md</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h2 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h3 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h4 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h5 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h6 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">DMI+QoI premix effects on FHB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa fa fa-home"></span>
+     
+    About
+  </a>
+</li>
+<li>
+  <a href="data.html">
+    <span class="fa fa fa fa-table"></span>
+     
+    Data
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa fa fa-file-code-o"></span>
+     
+    Documented analysis
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="code-sev.html">FHB index</a>
+    </li>
+    <li>
+      <a href="code-yld.html">Wheat yield</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="plots.html">
+    <span class="fa fa-bar-chart"></span>
+     
+    Publication-ready plots
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE, warning = FALSE)</code></pre>
+<div id="import-data" class="section level1">
+<h1>Import Data</h1>
+<div id="histogramas" class="section level2">
+<h2>Histogramas</h2>
+<p>Histograms to check data distribution of FHB index and wheat grain yield. Log-transformed FHB index data was use in the meta-analysis.</p>
+<pre class="r"><code>## Log of the Effect-sizes
+fhb2 &lt;- fhb2 %&gt;%
+  mutate(
+    log_sev = log(sev),
+    log_yld = log(yld))
+
+
+hist_log_sev &lt;- ggplot(fhb2, aes(log_sev)) + 
+  geom_histogram(bins=20, fill = &quot;steelblue&quot;, color = &quot;white&quot;) + 
+  theme_minimal_hgrid() + 
+  xlab(&quot;log(FHB Index)&quot;)
+
+
+hist_sev &lt;- ggplot(fhb2, aes(sev)) + 
+  geom_histogram(bins=20, fill = &quot;steelblue&quot;, color = &quot;white&quot;) + 
+  theme_minimal_hgrid() + 
+  xlab(&quot;FHB Index (%)&quot;)
+
+
+
+hist_yld &lt;- ggplot(fhb2, aes(yld)) + 
+  geom_histogram(bins=20, fill = &quot;steelblue&quot;, color = &quot;white&quot;) + 
+  theme_minimal_hgrid() +
+  xlab(&quot;Yield (Kg/ha)&quot;)
+
+
+library(cowplot)
+hist_plot &lt;- plot_grid(hist_sev, hist_log_sev, hist_yld, labels = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;), nrow = 3, align = &quot;V&quot;)
+hist_plot</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-2-1.png" width="480" /></p>
+<pre class="r"><code>ggsave(&quot;Figures/histograms.png&quot;, width = 5, height = 8, dpi = 300)</code></pre>
+</div>
+<div id="boxplots" class="section level2">
+<h2>Boxplots</h2>
+<div id="severity" class="section level3">
+<h3>Severity</h3>
+<pre class="r"><code>fhb2 &lt;- fhb2  
+fhb2$AI2 &lt;- factor(fhb2$AI2, levels = c(&quot;CHECK&quot;, &quot;AZOX + TEBU&quot;, &quot;TFLX + TEBU&quot;, &quot;TEBU&quot;, &quot;TFLX + PROT&quot;, &quot;PYRA + METC&quot;, &quot;PYRA + METC 1X&quot;))
+
+box_sev &lt;- ggplot(fhb2, aes(AI2, sev)) +
+  geom_boxplot(size = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, color = &quot;#83CAFF&quot;, alpha = 0.5) +
+  theme_minimal_hgrid()+
+  labs(x = &quot;Fungicides&quot;, y = &quot;FHB Index (%)&quot;) +
+  scale_y_continuous(breaks = c(0,20,40,60,80,100), limits = c(0,100))+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size=12),
+        axis.title.y = element_text(size=14, face = &quot;bold&quot;))
+box_sev</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>sev_year &lt;- fhb2 %&gt;%
+  filter(AI2 == &quot;CHECK&quot;) %&gt;%
+  ggplot(aes(factor(year), sev_check)) +
+  geom_boxplot(size = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, color = &quot;#83CAFF&quot;, alpha = 0.5) +
+  theme_minimal_hgrid()+
+  labs(x = &quot;Crop Seasons&quot;, y = &quot;FHB Index (%) in the CHECK&quot;) +
+  scale_y_continuous(breaks = c(0,20,40,60,80,100), limits = c(0,100))+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size=12),
+        axis.title.y = element_text(size=14, face = &quot;bold&quot;))
+sev_year</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+</div>
+<div id="yield" class="section level3">
+<h3>Yield</h3>
+<pre class="r"><code>fhb2 &lt;- fhb2  
+fhb2$AI2 &lt;- factor(fhb2$AI2, levels = c(&quot;CHECK&quot;, &quot;AZOX + TEBU&quot;, &quot;TFLX + TEBU&quot;, &quot;TEBU&quot;, &quot;TFLX + PROT&quot;, &quot;PYRA + METC&quot;, &quot;PYRA + METC 1X&quot;))
+
+box_yld &lt;- ggplot(fhb2, aes(AI2, yld)) +
+  geom_boxplot(size = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, color = &quot;#FF950E&quot;, alpha = 0.5) +
+  theme_minimal_hgrid()+
+  labs(x = &quot;Fungicides&quot;, y = &quot;Yield (kg/ha)&quot;) +
+  scale_y_continuous(breaks = c(0,1000,2000,3000,4000,5000,6000), limits = c(0, 6000))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12),
+        axis.text.y = element_text(size=12),
+        axis.title = element_text(size=14, face = &quot;bold&quot;))
+box_yld</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>yld_year &lt;- fhb2 %&gt;%
+  filter(AI2 == &quot;CHECK&quot;) %&gt;%
+  ggplot(aes(factor(year), yld_check)) +
+  geom_boxplot(size = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, color = &quot;#FF950E&quot;, alpha = 0.5) +
+  theme_minimal_hgrid()+
+  labs(x = &quot;Crop Seasons&quot;, y = &quot;Yield (kg/ha) in the CHECK&quot;) +
+  scale_y_continuous(breaks = c(0,1000,2000,3000,4000,5000,6000), limits = c(0, 6000))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12),
+        axis.text.y = element_text(size=12),
+         axis.title = element_text(size=14, face = &quot;bold&quot;))
+yld_year</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<pre class="r"><code>library(patchwork)
+
+((sev_year + labs(tag = &#39;A&#39;)) / yld_year) | ((box_sev + labs(tag = &#39;B&#39;)) / box_yld)</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-5-1.png" width="1152" /></p>
+<pre class="r"><code>ggsave(&quot;Figures/Combo.png&quot;, width = 12, height = 10, dpi = 300)</code></pre>
+</div>
+</div>
+<div id="state" class="section level2">
+<h2>State</h2>
+<pre class="r"><code>state_sev &lt;- fhb2 %&gt;%
+  filter(AI2 == &quot;CHECK&quot;) %&gt;%
+  ggplot(aes(factor(year), sev_check)) +
+  geom_boxplot(size = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, color = &quot;#83CAFF&quot;, alpha = 0.5) +
+  theme_minimal_hgrid()+
+  scale_y_continuous(breaks = c(0,25,50,75,100), limits = c(0,100))+
+  theme(legend.position = &quot;none&quot;,
+        strip.text.x = element_text(color = &quot;white&quot;,size = 14, face = &quot;bold&quot;),
+        strip.background = element_rect(fill = &quot;black&quot;), 
+        axis.text = element_text(size = 12),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title = element_text(size=14, face = &quot;bold&quot;))+
+  labs(x = &quot;Crop Seasons&quot;, y = &quot;FHB Index in the CHECK (%)&quot;)+
+  facet_wrap(~state1, ncol = 1)
+state_sev</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
+<pre class="r"><code>state_yld &lt;- fhb2 %&gt;%
+  filter(AI2 == &quot;CHECK&quot;) %&gt;%
+  ggplot(aes(factor(year), yld_check)) +
+  geom_boxplot(size = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, color = &quot;#FF950E&quot;, alpha = 0.5) +
+  theme_minimal_hgrid()+
+  labs(x = &quot;Crop Seasons&quot;, y = &quot;Yield in the CHECK (kg/ha)&quot;) +
+  scale_y_continuous(breaks = c(0,2000,4000,6000), limits = c(0, 6000))+
+  theme(strip.text.x = element_text(color = &quot;white&quot;,size = 14, face = &quot;bold&quot;),
+        strip.background = element_rect(fill = &quot;black&quot;), 
+        axis.text = element_text(size = 12),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title = element_text(size=14, face = &quot;bold&quot;))+
+  facet_wrap(~state1, ncol = 1)
+state_yld</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-6-2.png" width="960" /></p>
+<pre class="r"><code>library(patchwork)
+
+state_sev + labs(tag = &#39;A&#39;) + state_yld + labs(tag = &#39;B&#39;)</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-6-3.png" width="960" /></p>
+<pre class="r"><code>ggsave(&quot;Figures/Box_state.png&quot;, width = 12, height = 8, dpi = 300)</code></pre>
+</div>
+<div id="severity-x-yield" class="section level2">
+<h2>Severity x Yield</h2>
+<p>Here we ploted the relationship between control efficacy and yield differences.</p>
+<pre class="r"><code>library(palettetown)
+sev_yld &lt;- read_csv(&quot;data/sev_yld.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   efficacy = col_double(),
+##   eff_sup = col_double(),
+##   eff_inf = col_double(),
+##   fungicide = col_character(),
+##   yld = col_double(),
+##   yld_inf = col_double(),
+##   yld_sup = col_double()
+## )</code></pre>
+<pre class="r"><code>sev_yld</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["efficacy"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["eff_sup"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["eff_inf"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["fungicide"],"name":[4],"type":["chr"],"align":["left"]},{"label":["yld"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["yld_inf"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["yld_sup"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"58.70525","2":"64.52216","3":"51.93461","4":"AZOX + TEBU 2X","5":"473.4078","6":"376.2692","7":"570.5464"},{"1":"44.09744","2":"53.74373","3":"32.43951","4":"PYRA + METC 1X","5":"425.0396","6":"320.1539","7":"529.9252"},{"1":"64.29460","2":"69.31765","3":"58.44922","4":"PYRA + METC 2X","5":"546.1680","6":"453.1002","7":"639.2358"},{"1":"59.89676","2":"65.32598","3":"53.61743","4":"TEBU 2X","5":"459.6533","6":"353.4864","7":"565.8201"},{"1":"62.63590","2":"68.19080","3":"56.11094","4":"TFLX + PROT 2X","5":"505.1909","6":"415.6877","7":"594.6942"},{"1":"58.38925","2":"64.42050","3":"51.33562","4":"TFLX + TEBU 2X","5":"479.4437","6":"394.6934","7":"564.1939"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># Renaming the treatments 
+library(plyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## You have loaded plyr after dplyr - this is likely to cause problems.
+## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+## library(plyr); library(dplyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## 
+## Attaching package: &#39;plyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     compact</code></pre>
+<pre class="r"><code>sev_yld$fungicide &lt;- revalue(sev_yld$fungicide, c(&quot;AZOX + TEBU 2X&quot; = &quot;AZOX + TEBU&quot;))
+sev_yld$fungicide &lt;- revalue(sev_yld$fungicide, c(&quot;PYRA + METC 2X&quot; = &quot;PYRA + METC&quot;))
+sev_yld$fungicide &lt;- revalue(sev_yld$fungicide, c(&quot;TEBU 2X&quot; = &quot;TEBU&quot;))
+sev_yld$fungicide &lt;- revalue(sev_yld$fungicide, c(&quot;TFLX + PROT 2X&quot; = &quot;TFLX + PROT&quot;))
+sev_yld$fungicide &lt;- revalue(sev_yld$fungicide, c(&quot;TFLX + TEBU 2X&quot; = &quot;TFLX + TEBU&quot;))
+sev_yld$fungicide &lt;- revalue(sev_yld$fungicide, c(&quot;PYRA + METC 1X&quot; = &quot;PYRA + METC 1X&quot;))
+detach(&quot;package:plyr&quot;, unload = TRUE)
+
+sev_yld %&gt;% 
+  mutate(fungicide = factor(fungicide, levels = c(&quot;PYRA + METC&quot;, &quot;TFLX + PROT&quot;, &quot;TEBU&quot;, &quot;AZOX + TEBU&quot;, &quot;TFLX + TEBU&quot;,  &quot;PYRA + METC 1X&quot;))) %&gt;% 
+  ggplot(aes(efficacy, yld)) +
+  geom_errorbar(aes(ymin = yld_inf, ymax = yld_sup), width = 0, size = 0.8, color = &quot;black&quot;, alpha = 0.35) +
+  geom_errorbarh(aes(xmin = eff_inf,xmax = eff_sup),  height = 0, size = 0.8, color = &quot;black&quot;, alpha = 0.35)+
+  labs(x = &quot;FHB control (%)&quot;, y = &quot;Yield difference (kg/ha)&quot;, color = &quot;Fungicide&quot;)+
+  geom_point(aes(efficacy, yld, color = fungicide), size= 3) +
+  scale_color_calc()+
+  theme_minimal_grid()+
+  theme(axis.text=element_text(size=12), 
+        axis.title=element_text(size=12, face = &quot;bold&quot;), 
+        legend.position = &quot;right&quot;,
+        legend.title.align = 0.5,
+        legend.title = element_text(size=12, face = &quot;bold&quot;))</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-7-1.png" width="768" /></p>
+<pre class="r"><code>ggsave(&quot;Figures/sev_yld.png&quot;, width = 8, height = 5, dpi = 300)</code></pre>
+</div>
+<div id="wheat-price" class="section level2">
+<h2>Wheat price</h2>
+<p>We gathered the wheat price for three wheat-producing states (Rio Grande do Sul, Paraná, and Santa Catarina).</p>
+<pre class="r"><code>library(gsheet)
+
+wheat_price &lt;- gsheet2tbl(&quot;https://docs.google.com/spreadsheets/d/1Kh0474vS9xCxwud6RSZgr7VeWEF7FAnYDSi3EMb_bYs/edit#gid=1133011953&quot;) 
+
+
+wheat_price = wheat_price %&gt;% 
+  mutate(price_ton = ((price/60)*1000)/5.2)
+mean(wheat_price$price_ton)</code></pre>
+<pre><code>## [1] 160.6517</code></pre>
+</div>
+<div id="tetris-plot" class="section level2">
+<h2>Tetris plot</h2>
+<p>Tile plots of the probability classes of breaking even on fungicide costs were produced for each fungicide.</p>
+<pre class="r"><code>fhb_tetris &lt;- gsheet2tbl(
+  &quot;https://docs.google.com/spreadsheets/d/1Kh0474vS9xCxwud6RSZgr7VeWEF7FAnYDSi3EMb_bYs/edit#gid=1373111570&quot;,
+  sheetid = &quot;tetris&quot;)
+fhb_tetris &lt;- fhb_tetris %&gt;%
+  mutate(
+    tau = as.numeric(tau),
+    D = as.numeric(D)
+  )
+
+
+prob &lt;- function(C, P, tau, D) {
+  profit &lt;- (D - (C / (P / 1000))) / sqrt(tau) # loss
+  prob_gain &lt;- pnorm(profit)
+  ploss &lt;- 1 - prob_gain
+  ploss
+}
+
+
+
+for (i in 1:length(fhb_tetris$C)) {
+  fhb_tetris$breacking_even[i] &lt;- prob(C = fhb_tetris$C[i], D = fhb_tetris$D[i], tau = fhb_tetris$tau[i], P = fhb_tetris$P[i]) * 100
+}
+
+
+library(viridis)
+library(tidyverse)
+library(ggthemes)
+dat &lt;- fhb_tetris %&gt;%
+  mutate(
+    breacking_even = as.numeric(breacking_even),
+    breacking_even = round(breacking_even, 1)
+  )
+summary(dat$breacking_even)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   38.80   41.40   42.95   43.56   45.30   52.80</code></pre>
+<pre class="r"><code>library(plyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## You have loaded plyr after dplyr - this is likely to cause problems.
+## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+## library(plyr); library(dplyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## 
+## Attaching package: &#39;plyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     compact</code></pre>
+<pre class="r"><code>dat$fungicide &lt;- revalue(dat$fungicide, c(&quot;AZOX + TEBU 2X&quot; = &quot;AZOX + TEBU&quot;))
+dat$fungicide &lt;- revalue(dat$fungicide, c(&quot;PYRA + METC 2X&quot; = &quot;PYRA + METC&quot;))
+dat$fungicide &lt;- revalue(dat$fungicide, c(&quot;TEBU 2X&quot; = &quot;TEBU&quot;))
+dat$fungicide &lt;- revalue(dat$fungicide, c(&quot;PYRA + METC 1X&quot; = &quot;PYRA + METC 1X&quot;))
+detach(&quot;package:plyr&quot;, unload = TRUE)
+
+dat %&gt;%
+  filter(fungicide %in% c(&quot;PYRA + METC&quot;, &quot;PYRA + METC 1X&quot;, &quot;TEBU&quot;)) %&gt;% 
+  #mutate(fungicide = factor(fungicide, levels = c(&quot;PYRA + METC 2X&quot;, &quot;AZOX + TEBU 2X&quot;,&quot;TEBU 2X&quot;))) %&gt;%
+  mutate(fungicide = factor(fungicide, levels = c(&quot;PYRA + METC&quot;, &quot;TEBU&quot;, &quot;PYRA + METC 1X&quot;))) %&gt;%
+  mutate(breacking_even1 = case_when(
+    breacking_even &gt;= 75 ~ &quot;p \u2265 75  &quot;,
+    breacking_even &lt; 75 &amp; breacking_even &gt;= 65 ~ &quot;65 \u2264 p &lt; 75  &quot;,
+    breacking_even &lt; 65 &amp; breacking_even &gt;= 55 ~ &quot;55 \u2264 p &lt; 65  &quot;,
+    breacking_even &lt; 55 &amp; breacking_even &gt;= 45 ~ &quot;45 \u2264 p &lt; 55  &quot;,
+    breacking_even &lt; 45 ~ &quot;0 \u2264 p &lt; 45  &quot;
+  )) %&gt;%
+  ggplot(aes(factor(C), factor(P), z = breacking_even1, fill = breacking_even1, label = breacking_even1)) +
+  geom_tile(color = &quot;white&quot;, size = 0.5) +
+  scale_fill_viridis(discrete = T, option = &quot;E&quot;, begin = 0, end = 1, name = &quot;Probability of not-offsetting costs (%)&quot;) +
+  scale_color_gradient(high = &quot;white&quot;, low = &quot;white&quot;) +
+  labs(x = &quot;Fungicide + application cost (US$/ha)&quot;, y = &quot;Wheat price (US$/ton) &quot;, fill = &quot;&quot;) +
+  theme_minimal() +
+  facet_wrap(~ fungicide, scales = &quot;free&quot;, nrow=1) +
+  theme(axis.title = element_text(size = 12, face = &quot;bold&quot;), 
+        legend.justification = &quot;center&quot;, 
+        axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        strip.text.x = element_text(size = 14, face = &quot;bold&quot;), 
+        strip.text.y = element_text(size = 14, face = &quot;bold&quot;), 
+        panel.grid.minor = element_line(colour = &quot;white&quot;), 
+        panel.grid.major = element_line(colour = &quot;white&quot;), 
+        legend.position = &quot;bottom&quot;)</code></pre>
+<p><img src="plots_files/figure-html/unnamed-chunk-9-1.png" width="864" /></p>
+<pre class="r"><code>ggsave(&quot;Figures/tetris.png&quot;, width = 9, height = 4, dpi = 300)</code></pre>
+</div>
+</div>
+
+
+
+Copyright 2020 Jhonatan Paulo Barro
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
